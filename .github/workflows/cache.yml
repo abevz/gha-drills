@@ -1,0 +1,34 @@
+name: cache
+on:
+  workflow_dispatch:
+    inputs:
+      suffix: {type: string, default: one}
+jobs:
+  produce:
+    runs-on: ubuntu-latest
+    steps:
+      - id: c
+        uses: actions/cache@v4
+        with:
+          path: deps
+          key: deps-${{ inputs.suffix }}
+          restore-keys: |
+            deps-
+      - run: |
+          echo "produce: cache-hit=[${{ steps.c.outputs.cache-hit }}] stamp=$(cat deps/stamp 2>/dev/null || echo none)"
+          sleep 15; mkdir -p deps; echo "made-by-${{ inputs.suffix }}-on-${{ github.ref_name }}" > deps/stamp
+  consume-parallel:
+    runs-on: ubuntu-latest
+    steps:
+      - id: c
+        uses: actions/cache/restore@v4
+        with: {path: deps, key: "deps-${{ inputs.suffix }}"}
+      - run: echo "parallel: cache-hit=[${{ steps.c.outputs.cache-hit }}] stamp=$(cat deps/stamp 2>/dev/null || echo none)"
+  consume-later:
+    needs: produce
+    runs-on: ubuntu-latest
+    steps:
+      - id: c
+        uses: actions/cache/restore@v4
+        with: {path: deps, key: "deps-${{ inputs.suffix }}"}
+      - run: echo "later: cache-hit=[${{ steps.c.outputs.cache-hit }}] stamp=$(cat deps/stamp 2>/dev/null || echo none)"

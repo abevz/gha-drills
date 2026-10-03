@@ -1,0 +1,37 @@
+name: artifacts
+on: [workflow_dispatch]
+jobs:
+  build-a:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sleep 2; echo a > a.txt
+      - uses: actions/upload-artifact@v4
+        with: {name: a, path: a.txt}
+  build-b:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sleep 45; echo b > b.txt
+      - uses: actions/upload-artifact@v4
+        with: {name: b, path: b.txt}
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "lint sees:"; ls *.txt 2>/dev/null || echo "(no files)"
+  test-a:
+    needs: [build-a]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "before download:"; ls *.txt 2>/dev/null || echo "(no files)"
+      - uses: actions/download-artifact@v4
+        with: {merge-multiple: true}
+      - run: echo "test-a after download-all:"; ls *.txt
+  deploy:
+    needs: [test-a, build-b]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: {name: a}
+      - run: echo "deploy after download name=a:"; ls *.txt
+      - uses: actions/download-artifact@v4
+        with: {merge-multiple: true}
+      - run: echo "deploy after download-all:"; ls *.txt

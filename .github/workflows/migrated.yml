@@ -1,0 +1,26 @@
+# port of the GitLab CI skeleton: lint always; unit on PR and main; deploy-staging on main; deploy-prod on tag vX.Y.Z (manual)
+name: migrated
+on:
+  push:
+    branches: [main]
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+  pull_request:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps: [{run: echo lint}]
+  unit:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps: [{run: echo unit}]
+  deploy-staging:
+    needs: [lint, unit]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps: [{run: echo deploy-staging}]
+  deploy-prod:
+    needs: [lint]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment: production
+    steps: [{run: "echo deploy-prod ${{ github.ref_name }}"}]
