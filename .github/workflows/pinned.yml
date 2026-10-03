@@ -1,0 +1,9 @@
+name: pinned
+on: [workflow_dispatch]
+jobs:
+  by-tag:
+    uses: abevz/gha-drills/.github/workflows/build.yml@v1
+    with: {image: ghcr.io/acme/by-tag}
+  by-sha:
+    uses: abevz/gha-drills/.github/workflows/build.yml@e56bc99d05d291323d196e339ffb1573f9606cd9
+    with: {image: ghcr.io/acme/by-sha}

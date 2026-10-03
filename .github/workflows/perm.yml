@@ -1,0 +1,19 @@
+name: perm
+on: [workflow_dispatch]
+jobs:
+  read-only:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - env: {GH_TOKEN: "${{ github.token }}"}
+        run: gh issue create -R ${{ github.repository }} --title "drill from read-only job" --body x || echo "exit=$?"
+  can-write-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - env: {GH_TOKEN: "${{ github.token }}"}
+        run: gh issue create -R ${{ github.repository }} --title "drill from issues-write job" --body "created by GITHUB_TOKEN"
+      - env: {GH_TOKEN: "${{ github.token }}"}
+        run: gh api repos/${{ github.repository }}/contents/README.md --jq .name || echo "contents exit=$?"
