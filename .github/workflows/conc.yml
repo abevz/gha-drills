@@ -1,0 +1,12 @@
+name: conc
+on:
+  push:
+    branches: ['feature/**']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  slow:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sleep 45

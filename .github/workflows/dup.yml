@@ -1,0 +1,7 @@
+name: dup
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "event=${{ github.event_name }} ref=${{ github.ref }} sha=${{ github.sha }}"

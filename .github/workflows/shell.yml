@@ -1,5 +1,5 @@
 name: shell
-on: [workflow_dispatch, push]
+on: [workflow_dispatch]
 jobs:
   pipe:
     runs-on: ubuntu-latest
