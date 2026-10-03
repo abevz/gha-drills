@@ -1,0 +1,16 @@
+name: version
+description: compute a version string
+inputs:
+  prefix:
+    description: tag prefix
+    default: v
+outputs:
+  version:
+    description: computed version
+    value: ${{ steps.calc.outputs.version }}
+runs:
+  using: composite
+  steps:
+    - id: calc
+      shell: bash
+      run: echo "version=${{ inputs.prefix }}1.4.${{ github.run_number }}" >> "$GITHUB_OUTPUT"

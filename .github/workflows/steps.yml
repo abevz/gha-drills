@@ -1,0 +1,38 @@
+name: steps
+on: [workflow_dispatch]
+jobs:
+  flow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: ver
+        uses: ./.github/actions/version
+        with:
+          prefix: rel-
+      - run: echo "version=${{ steps.ver.outputs.version }}"
+      - id: flaky
+        continue-on-error: true
+        run: exit 3
+      - run: echo "flaky outcome=${{ steps.flaky.outcome }} conclusion=${{ steps.flaky.conclusion }}"
+      - id: broken
+        run: exit 1
+      - run: echo "SKIPPED after failure (default if is success())"
+      - if: failure()
+        run: echo "runs only on failure -> notify"
+      - if: always()
+        run: echo "always runs -> cleanup; job.status=${{ job.status }}"
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          TOKEN: ${{ secrets.API_TOKEN }}
+        run: |
+          echo "plain: $TOKEN"
+          echo "base64: $(echo -n "$TOKEN" | base64)"
+          echo "split: ${TOKEN:0:6} ${TOKEN:6}"
+          echo "missing secret is empty: [${{ secrets.NOT_DEFINED }}]"
+  after:
+    needs: flow
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "after flow"
