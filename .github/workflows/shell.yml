@@ -1,0 +1,16 @@
+name: shell
+on: [workflow_dispatch, push]
+jobs:
+  pipe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "shell: $(ps -o args= -p $$)"
+          false | tee out.log
+          echo "REACHED after failing pipe (default shell)"
+      - shell: bash
+        continue-on-error: true
+        run: |
+          echo "shell: $(ps -o args= -p $$)"
+          false | tee out.log
+          echo "REACHED after failing pipe (shell: bash)"
