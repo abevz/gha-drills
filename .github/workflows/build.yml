@@ -23,6 +23,6 @@ jobs:
     steps:
       - id: build
         run: |
-          echo "building ${{ inputs.image }} push=${{ inputs.push }}"
+          echo "TEMPLATE-V1.1 building ${{ inputs.image }} push=${{ inputs.push }}"
           echo "token set: ${{ secrets.registry_token != '' }}"
           echo "digest=sha256:$(echo -n '${{ inputs.image }}' | sha256sum | cut -c1-12)" >> "$GITHUB_OUTPUT"
