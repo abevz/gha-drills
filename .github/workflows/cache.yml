@@ -23,7 +23,8 @@ jobs:
       - id: c
         uses: actions/cache/restore@v4
         with: {path: deps, key: "deps-${{ inputs.suffix }}"}
-      - run: echo "parallel: cache-hit=[${{ steps.c.outputs.cache-hit }}] stamp=$(cat deps/stamp 2>/dev/null || echo none)"
+      - run: |
+          echo "parallel: cache-hit=[${{ steps.c.outputs.cache-hit }}] stamp=$(cat deps/stamp 2>/dev/null || echo none)"
   consume-later:
     needs: produce
     runs-on: ubuntu-latest
@@ -31,4 +32,5 @@ jobs:
       - id: c
         uses: actions/cache/restore@v4
         with: {path: deps, key: "deps-${{ inputs.suffix }}"}
-      - run: echo "later: cache-hit=[${{ steps.c.outputs.cache-hit }}] stamp=$(cat deps/stamp 2>/dev/null || echo none)"
+      - run: |
+          echo "later: cache-hit=[${{ steps.c.outputs.cache-hit }}] stamp=$(cat deps/stamp 2>/dev/null || echo none)"
