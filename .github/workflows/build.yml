@@ -1,0 +1,28 @@
+name: build (reusable)
+on:
+  workflow_call:
+    inputs:
+      image:
+        type: string
+        required: true
+      push:
+        type: boolean
+        default: false
+    secrets:
+      registry_token:
+        required: false
+    outputs:
+      digest:
+        description: image digest
+        value: ${{ jobs.build.outputs.digest }}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - id: build
+        run: |
+          echo "building ${{ inputs.image }} push=${{ inputs.push }}"
+          echo "token set: ${{ secrets.registry_token != '' }}"
+          echo "digest=sha256:$(echo -n '${{ inputs.image }}' | sha256sum | cut -c1-12)" >> "$GITHUB_OUTPUT"

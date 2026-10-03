@@ -1,0 +1,43 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+env:
+  LEVEL: workflow
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      image: ghcr.io/acme/app
+      push: ${{ github.event_name == 'push' }}
+    secrets:
+      registry_token: ${{ secrets.REGISTRY_TOKEN }}
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [alpine, debian]
+        arch: [amd64, arm64]
+        exclude:
+          - {os: alpine, arch: arm64}
+        include:
+          - {os: debian, arch: amd64, extra: "with-coverage"}
+    env:
+      LEVEL: job
+    steps:
+      - run: echo "matrix ${{ matrix.os }}/${{ matrix.arch }} extra=[${{ matrix.extra }}] LEVEL=$LEVEL"
+      - env:
+          LEVEL: step
+        run: echo "LEVEL=$LEVEL"
+      - if: matrix.os == 'debian' && matrix.arch == 'arm64'
+        run: exit 1
+  deploy:
+    needs: [build, test]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "digest from reusable workflow: ${{ needs.build.outputs.digest }}"
+          echo "build=${{ needs.build.result }} test=${{ needs.test.result }}"
